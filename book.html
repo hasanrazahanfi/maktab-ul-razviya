@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en"> 
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>Book Viewer - Maktab Ul Razviya Library</title> 
+  <script src="https://cdn.tailwindcss.com"></script> 
+  <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
+        #bookPreview {
+            text-align: center;
+        }
+        #fullBook {
+            display: none; /* By default hidden */
+        }
+        iframe {
+            width: 100%;
+            height: 80vh;
+            border: none;
+        }
+    </style> 
+ </head> 
+ <body class="bg-gray-100 text-gray-800"> <!-- Header --> 
+  <header class="bg-green-500 text-white text-center py-4"> 
+   <h1 class="text-2xl font-bold">📚 Maktab Ul Razviya Library</h1> 
+  </header> <!-- Book Details Section --> 
+  <div class="container bg-white shadow-lg rounded-lg p-6 mt-6 text-center"> 
+   <h2 class="text-3xl font-bold mt-4">📖 Naam Rakhne ka Bayan</h2> 
+   <p class="text-gray-600">✍️ Author: Aseer-e-Huzoor Tajushariya Muhammad Hasan Raza Hanfi Sahab, Kolkata</p> <!-- Real-time Views & Downloads Count --> 
+   <p class="text-gray-600">👁️ Views: <span id="viewsCount">Loading...</span> | 📥 Downloads: <span id="downloadsCount">Loading...</span></p> <!-- Image Preview (Before Clicking Read Online) --> 
+   <div id="bookPreview"> <a href="https://ibb.co/M5nr2GYK"> <img src="https://i.ibb.co/cXJ0gCGR/Screenshot-20250301-174802-cropped.png" alt="Book Preview"> </a> 
+   </div> <!-- Read Online Button --> 
+   <div class="text-center mt-6"> <button id="readOnlineBtn" class="bg-blue-600 text-white px-6 py-2 rounded shadow-md">📖 Read Online</button> 
+   </div> <!-- Full PDF Viewer (Hidden Initially) --> 
+   <div id="fullBook"> <iframe src="https://drive.google.com/file/d/1hsr1TVDN61GpxInqTIW8tF_hpB6_JIwL/preview"></iframe> 
+   </div> <!-- Download Button --> 
+   <div class="text-center mt-6"> <button id="downloadBtn" class="bg-blue-600 text-white px-6 py-2 rounded shadow-md"> 📥 Download </button> 
+   </div> <!-- Back to Library --> 
+   <div class="text-center mt-6"> <a href="index.htm" class="text-blue-500">← Back to Library</a> 
+   </div> 
+  </div> <!-- JavaScript for Showing Full Book & Updating Counts --> 
+  <script>
+        const readOnlineBtn = document.getElementById('readOnlineBtn');
+        const fullBook = document.getElementById('fullBook');
+        const bookPreview = document.getElementById('bookPreview');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // Read Online Button Click
+        readOnlineBtn.addEventListener("click", function () {
+            fullBook.style.display = "block";
+            bookPreview.style.display = "none"; // Hide Image Preview
+            readOnlineBtn.style.display = "none"; // Hide Read Online button
+        });
+
+        // Update Views Count
+        fetch("/update-views/1")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("viewsCount").innerText = data.views;
+            });
+
+        // Fetch Latest Views & Downloads Count
+        function fetchCounts() {
+            fetch("/get-counts/1")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("viewsCount").innerText = data.views;
+                    document.getElementById("downloadsCount").innerText = data.downloads;
+                });
+        }
+        fetchCounts();
+
+        // Direct Download Function
+        downloadBtn.addEventListener("click", function () {
+            const fileId = "1hsr1TVDN61GpxInqTIW8tF_hpB6_JIwL";
+            const downloadLink = document.createElement("a");
+            downloadLink.href = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            downloadLink.download = "Naam_Rakhne_Ka_Bayan.pdf"; // Set file name
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+            // Update Downloads Count
+            fetch("/update-downloads/1")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("downloadsCount").innerText = data.downloads;
+                });
+        });
+    </script> 
+ </body>
+</html>
